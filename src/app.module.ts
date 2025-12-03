@@ -48,7 +48,7 @@ import { envValidationSchema } from './config/env.validation';
           password: configService.get<string>('POSTGRES_PASSWORD'),
           database: configService.get<string>('POSTGRES_DB'),
           entities: [User, Student, Company, Skill, Experience, JobOffer, Application],
-          synchronize: !isProduction,
+          synchronize: true,
           logging: !isProduction,
           migrations: ['dist/migrations/*.js'],
           migrationsRun: true,
