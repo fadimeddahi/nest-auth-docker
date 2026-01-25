@@ -62,8 +62,7 @@ export class AuthController {
       });
     } else {
       await this.companiesService.create(user.userId, {
-        firstName: registerDto.firstName,
-        lastName: registerDto.lastName,
+        companyName: `${registerDto.firstName} ${registerDto.lastName}`,
         enterpriseSize: registerDto.enterpriseSize,
       });
     }

@@ -42,6 +42,9 @@ export class Company {
   @Column({ default: false })
   isVerified: boolean;
 
+  @Column({ nullable: true })
+  enterpriseSize?: string;
+
   @OneToMany(() => JobOffer, (offer) => offer.company, { cascade: true })
   jobOffers: JobOffer[];
 

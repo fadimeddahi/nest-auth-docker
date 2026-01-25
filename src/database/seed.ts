@@ -8,6 +8,7 @@ import { ApplicationsService } from '../applications/applications.service';
 import { UserRole } from '../users/user.entity';
 import { OfferType } from '../job-offers/job-offer.entity';
 import * as bcrypt from 'bcryptjs';
+import { DataSource } from 'typeorm';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -19,6 +20,19 @@ async function bootstrap() {
   const applicationsService = app.get(ApplicationsService);
 
   console.log('🌱 Starting database seeding...\n');
+
+  // Clear existing data
+  console.log('🗑️  Clearing existing data...');
+  try {
+    const dataSource = app.get(DataSource);
+    
+    // Delete in correct order to avoid foreign key constraints
+    await dataSource.query('TRUNCATE TABLE applications, job_offers, experiences, skills, students, companies, users RESTART IDENTITY CASCADE');
+    
+    console.log('✓ Database cleared\n');
+  } catch (error) {
+    console.log('⚠️  Warning: Could not clear database:', error.message);
+  }
 
   // Hash password
   const hashedPassword = await bcrypt.hash('Password123!', 10);
@@ -99,7 +113,7 @@ async function bootstrap() {
   const companies = [
     {
       email: 'hr@condor.dz',
-      firstName: 'Condor Electronics',
+      companyName: 'Condor Electronics',
       enterpriseSize: '1000+',
       website: 'https://condor.dz',
       description: 'Leading Algerian electronics and home appliances manufacturer',
@@ -107,7 +121,7 @@ async function bootstrap() {
     },
     {
       email: 'careers@djezzy.dz',
-      firstName: 'Djezzy',
+      companyName: 'Djezzy',
       enterpriseSize: '501-1000',
       website: 'https://djezzy.dz',
       description: 'Major telecommunications operator in Algeria',
@@ -115,7 +129,7 @@ async function bootstrap() {
     },
     {
       email: 'jobs@cevital.com',
-      firstName: 'Cevital',
+      companyName: 'Cevital',
       enterpriseSize: '1000+',
       website: 'https://cevital.com',
       description: 'Algeria\'s largest private company in agri-food sector',
@@ -123,7 +137,7 @@ async function bootstrap() {
     },
     {
       email: 'tech@yassir.com',
-      firstName: 'Yassir',
+      companyName: 'Yassir',
       enterpriseSize: '201-500',
       website: 'https://yassir.com',
       description: 'Super app offering ride-hailing, delivery, and fintech services',
@@ -131,7 +145,7 @@ async function bootstrap() {
     },
     {
       email: 'recruitment@ooredoo.dz',
-      firstName: 'Ooredoo Algeria',
+      companyName: 'Ooredoo Algeria',
       enterpriseSize: '501-1000',
       website: 'https://ooredoo.dz',
       description: 'Telecommunications company providing mobile and internet services',
@@ -139,7 +153,7 @@ async function bootstrap() {
     },
   ];
 
-  const createdCompanies = [];
+  const createdCompanies: any[] = [];
   for (const companyData of companies) {
     const user = await usersService.create(
       companyData.email.split('@')[0],
@@ -149,7 +163,7 @@ async function bootstrap() {
     );
     const company = await companiesService.create(user.userId, companyData);
     createdCompanies.push(company);
-    console.log(`✓ Created company: ${companyData.firstName}`);
+    console.log(`✓ Created company: ${companyData.companyName}`);
   }
 
   // Create Job Offers
@@ -159,7 +173,7 @@ async function bootstrap() {
       companyIndex: 0,
       title: 'Full Stack Developer',
       description: 'We are looking for a talented Full Stack Developer to join our innovation team. You will work on cutting-edge web applications using modern technologies.',
-      type: OfferType.FULL_TIME,
+      type: OfferType.JOB,
       location: 'Bordj Bou Arreridj',
       salary: 80000,
       requirements: 'Bachelor in Computer Science, 2+ years experience with React and Node.js, Strong problem-solving skills',
@@ -168,7 +182,7 @@ async function bootstrap() {
       companyIndex: 1,
       title: 'Mobile App Developer',
       description: 'Join our mobile development team to build innovative apps for millions of users. Experience with React Native or Flutter required.',
-      type: OfferType.FULL_TIME,
+      type: OfferType.JOB,
       location: 'Algiers',
       salary: 90000,
       requirements: 'Experience with React Native or Flutter, Knowledge of mobile app architecture, Published apps on App Store or Play Store',
@@ -186,7 +200,7 @@ async function bootstrap() {
       companyIndex: 3,
       title: 'Backend Engineer',
       description: 'Build scalable microservices for our super app platform. Work with modern cloud technologies and help millions of users.',
-      type: OfferType.FULL_TIME,
+      type: OfferType.JOB,
       location: 'Algiers',
       salary: 100000,
       requirements: 'Strong experience with Node.js or Python, Knowledge of microservices architecture, Experience with AWS or GCP',
@@ -195,7 +209,7 @@ async function bootstrap() {
       companyIndex: 4,
       title: 'Network Security Engineer',
       description: 'Protect our telecommunications infrastructure. Work on network security, threat detection, and incident response.',
-      type: OfferType.FULL_TIME,
+      type: OfferType.JOB,
       location: 'Algiers',
       salary: 95000,
       requirements: 'Cybersecurity certification (CEH, CISSP), Experience with network security tools, Knowledge of firewalls and IDS/IPS',
@@ -213,7 +227,7 @@ async function bootstrap() {
       companyIndex: 1,
       title: 'DevOps Engineer',
       description: 'Manage our CI/CD pipelines and cloud infrastructure. Automate deployments and ensure high availability.',
-      type: OfferType.FULL_TIME,
+      type: OfferType.JOB,
       location: 'Algiers',
       salary: 105000,
       requirements: 'Experience with Docker and Kubernetes, Knowledge of CI/CD tools (Jenkins, GitLab CI), Cloud platform experience (AWS/Azure)',
@@ -222,14 +236,14 @@ async function bootstrap() {
       companyIndex: 3,
       title: 'UI/UX Designer',
       description: 'Design beautiful and intuitive interfaces for our mobile and web applications. User-centric approach required.',
-      type: OfferType.FULL_TIME,
+      type: OfferType.JOB,
       location: 'Algiers',
       salary: 85000,
       requirements: 'Portfolio of design projects, Proficiency in Figma or Adobe XD, Understanding of user research and testing',
     },
   ];
 
-  const createdJobOffers = [];
+  const createdJobOffers: any[] = [];
   for (const offerData of jobOffers) {
     const { companyIndex, ...jobData } = offerData;
     const company = createdCompanies[companyIndex];
@@ -255,7 +269,7 @@ async function bootstrap() {
   ];
 
   // Get created students
-  const createdStudents = [];
+  const createdStudents: any[] = [];
   for (const studentData of students) {
     const user = await usersService.findByEmail(studentData.email);
     if (user) {
