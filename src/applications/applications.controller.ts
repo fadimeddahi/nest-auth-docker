@@ -45,7 +45,7 @@ export class ApplicationsController {
   ): Promise<Application> {
     // Verify user is a student
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (req.user.role !== 'STUDENT') {
+    if (req.user.role !== 'student') {
       throw new ForbiddenException('Only students can apply for job offers');
     }
 
@@ -94,7 +94,7 @@ export class ApplicationsController {
   @ApiResponse({ status: 403, description: 'Only students can view their applications.' })
   async getMyApplications(@Request() req: any): Promise<Application[]> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (req.user.role !== 'STUDENT') {
+    if (req.user.role !== 'student') {
       throw new ForbiddenException('Only students can view their applications');
     }
 

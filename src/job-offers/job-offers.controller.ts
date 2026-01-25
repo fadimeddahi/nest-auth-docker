@@ -94,7 +94,7 @@ export class JobOffersController {
   ): Promise<JobOffer> {
     // Verify user is a company
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (req.user.role !== 'COMPANY') {
+    if (req.user.role !== 'company') {
       throw new ForbiddenException('Only companies can create job offers');
     }
 
