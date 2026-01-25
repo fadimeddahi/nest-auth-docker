@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, UseGuards, Request, NotFoundException, BadRequestException, Param, HttpCode } from '@nestjs/common';
+import { Controller, Get, Put, Post, Body, UseGuards, Request, NotFoundException, BadRequestException, Param, HttpCode, ConflictException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { StudentsService } from './students.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -44,6 +44,54 @@ export class StudentsController {
       skills: student.skills || [],
       experiences: student.experiences || [],
       createdAt: student.createdAt,
+    };
+  }
+
+  @Post('profile/create')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create or complete student profile (for users without profile)' })
+  @ApiResponse({ status: 201, description: 'Student profile created successfully.' })
+  @ApiResponse({ status: 409, description: 'Student profile already exists.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async createProfile(
+    @Request() req,
+    @Body(new ValidationPipe()) createStudentDto: any,
+  ): Promise<any> {
+    // Check if profile already exists
+    const existingStudent = await this.studentsService.findByUserId(req.user.userId);
+    if (existingStudent) {
+      throw new ConflictException('Student profile already exists. Use PUT /students/profile to update.');
+    }
+
+    // Create new student profile
+    const result = await this.studentsService.create(req.user.userId, {
+      firstName: createStudentDto.firstName,
+      lastName: createStudentDto.lastName,
+      university: createStudentDto.university,
+      bio: createStudentDto.bio,
+      phone: createStudentDto.phone,
+      location: createStudentDto.location,
+      portfolioUrl: createStudentDto.portfolioUrl,
+      githubUrl: createStudentDto.githubUrl,
+      linkedinUrl: createStudentDto.linkedinUrl,
+    });
+
+    return {
+      statusCode: 201,
+      message: 'Student profile created successfully',
+      id: result.studentId,
+      userId: result.user?.userId,
+      firstName: result.firstName,
+      lastName: result.lastName,
+      email: result.user?.email,
+      university: result.university,
+      bio: result.bio,
+      phone: result.phone,
+      location: result.location,
+      portfolioUrl: result.portfolioUrl,
+      githubUrl: result.githubUrl,
+      linkedinUrl: result.linkedinUrl,
     };
   }
 
