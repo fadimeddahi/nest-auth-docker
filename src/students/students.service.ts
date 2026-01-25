@@ -13,7 +13,7 @@ export class StudentsService {
   async findByUserId(userId: number): Promise<Student | null> {
     return this.studentsRepository.findOne({
       where: { user: { userId } },
-      relations: ['user', 'skills', 'experiences', 'applications'],
+      relations: ['user', 'skills', 'experiences', 'applications', 'applications.jobOffer', 'applications.jobOffer.company'],
     });
   }
 
@@ -29,14 +29,14 @@ export class StudentsService {
     await this.studentsRepository.update(studentId, studentData);
     return this.studentsRepository.findOne({
       where: { studentId },
-      relations: ['user', 'skills', 'experiences', 'applications'],
+      relations: ['user', 'skills', 'experiences', 'applications', 'applications.jobOffer', 'applications.jobOffer.company'],
     });
   }
 
   async findById(studentId: number): Promise<Student | null> {
     return this.studentsRepository.findOne({
       where: { studentId },
-      relations: ['user', 'skills', 'experiences', 'applications'],
+      relations: ['user', 'skills', 'experiences', 'applications', 'applications.jobOffer', 'applications.jobOffer.company'],
     });
   }
 }

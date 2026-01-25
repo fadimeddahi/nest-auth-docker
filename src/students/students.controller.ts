@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, UseGuards, Request, NotFoundException, BadRequestException, Param } from '@nestjs/common';
+import { Controller, Get, Put, Body, UseGuards, Request, NotFoundException, BadRequestException, Param, HttpCode } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { StudentsService } from './students.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -81,6 +81,40 @@ export class StudentsController {
       skills: result.skills || [],
       experiences: result.experiences || [],
       createdAt: result.createdAt,
+    };
+  }
+
+  @Get('dashboard/stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get student dashboard statistics' })
+  @ApiResponse({ status: 200, description: 'Return dashboard stats.' })
+  @ApiResponse({ status: 404, description: 'Student profile not found.' })
+  async getDashboardStats(@Request() req): Promise<any> {
+    const student = await this.studentsService.findByUserId(req.user.userId);
+    if (!student) {
+      throw new NotFoundException('Student profile not found');
+    }
+
+    const applications = student.applications || [];
+    const totalApplications = applications.length;
+    const pendingReviews = applications.filter((app: any) => app.status === 'pending').length;
+    const interviews = applications.filter((app: any) => app.status === 'interview').length;
+    const offers = applications.filter((app: any) => app.status === 'accepted').length;
+
+    return {
+      statusCode: 200,
+      totalApplications,
+      pendingReviews,
+      interviews,
+      offers,
+      applications: applications.map((app: any) => ({
+        applicationId: app.applicationId,
+        jobTitle: app.jobOffer?.title,
+        company: app.jobOffer?.company?.firstName,
+        status: app.status,
+        appliedDate: app.createdAt,
+      })),
     };
   }
 
