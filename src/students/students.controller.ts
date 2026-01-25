@@ -5,11 +5,15 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { ValidationPipe } from '../common/pipes/validation.pipe';
 import { Student } from './student.entity';
+import { ApplicationsService } from '../applications/applications.service';
 
 @ApiTags('Students')
 @Controller('students')
 export class StudentsController {
-  constructor(private studentsService: StudentsService) {}
+  constructor(
+    private studentsService: StudentsService,
+    private applicationsService: ApplicationsService,
+  ) {}
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
@@ -111,9 +115,49 @@ export class StudentsController {
       applications: applications.map((app: any) => ({
         applicationId: app.applicationId,
         jobTitle: app.jobOffer?.title,
-        company: app.jobOffer?.company?.firstName,
+        company: app.jobOffer?.company?.companyName,
         status: app.status,
         appliedDate: app.createdAt,
+      })),
+    };
+  }
+
+  @Get('applications')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get student applications' })
+  @ApiResponse({ status: 200, description: 'Return list of applications.' })
+  @ApiResponse({ status: 404, description: 'Student profile not found.' })
+  async getApplications(@Request() req): Promise<any> {
+    const student = await this.studentsService.findByUserId(req.user.userId);
+    if (!student) {
+      throw new NotFoundException('Student profile not found');
+    }
+
+    const applications = await this.applicationsService.findByStudentId(student.studentId);
+
+    return {
+      statusCode: 200,
+      applications: applications.map((app: any) => ({
+        applicationId: app.applicationId,
+        jobOffer: {
+          offerId: app.jobOffer?.offerId,
+          title: app.jobOffer?.title,
+          type: app.jobOffer?.type,
+          location: app.jobOffer?.location,
+          salary: app.jobOffer?.salary,
+          company: {
+            companyId: app.jobOffer?.company?.companyId,
+            companyName: app.jobOffer?.company?.companyName,
+            location: app.jobOffer?.company?.location,
+            logoUrl: app.jobOffer?.company?.logoUrl,
+          },
+        },
+        status: app.status,
+        coverLetter: app.coverLetter,
+        cvUrl: app.cvUrl,
+        appliedDate: app.createdAt,
+        updatedDate: app.updatedAt,
       })),
     };
   }
