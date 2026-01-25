@@ -1,21 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsBoolean, IsOptional, MinLength, MaxLength } from 'class-validator';
 
 export class LoginDto {
   @ApiProperty({
-    example: 'john_doe',
-    description: 'The username of the user',
-    minLength: 3,
-    maxLength: 50,
+    example: 'user@example.com',
+    description: 'The email address of the user',
   })
-  @IsString()
+  @IsEmail()
   @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(50)
-  username: string;
+  email: string;
 
   @ApiProperty({
-    example: 'password123',
+    example: 'StrongPass123!',
     description: 'The password of the user',
     minLength: 8,
     maxLength: 100,
@@ -25,4 +21,13 @@ export class LoginDto {
   @MinLength(8)
   @MaxLength(100)
   password: string;
+
+  @ApiProperty({
+    example: false,
+    description: 'Remember me option',
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  rememberMe?: boolean;
 }

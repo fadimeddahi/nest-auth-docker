@@ -1,12 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsUrl, MaxLength, IsNumber, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsUrl, MaxLength } from 'class-validator';
 
 export class CreateApplicationDto {
-  @ApiProperty({ example: 1, description: 'ID of the job offer' })
-  @IsNumber()
-  @IsNotEmpty()
-  offerId: number;
-
   @ApiProperty({
     example: 'I am very interested in this position...',
     description: 'Cover letter',

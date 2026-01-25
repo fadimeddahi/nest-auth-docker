@@ -30,7 +30,7 @@ export class ApplicationsController {
     private jobOffersService: JobOffersService,
   ) {}
 
-  @Post()
+  @Post(':offerId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Apply for a job offer' })
@@ -40,6 +40,7 @@ export class ApplicationsController {
   @ApiResponse({ status: 400, description: 'Already applied or invalid data.' })
   async apply(
     @Request() req: any,
+    @Param('offerId') offerId: string,
     @Body(new ValidationPipe()) createApplicationDto: CreateApplicationDto,
   ): Promise<Application> {
     // Verify user is a student
@@ -53,11 +54,12 @@ export class ApplicationsController {
       throw new NotFoundException('Student profile not found');
     }
 
-    if (!createApplicationDto.offerId || isNaN(createApplicationDto.offerId)) {
+    const jobOfferId = parseInt(offerId, 10);
+    if (isNaN(jobOfferId)) {
       throw new BadRequestException('Valid offerId is required');
     }
 
-    const offer = await this.jobOffersService.findById(createApplicationDto.offerId);
+    const offer = await this.jobOffersService.findById(jobOfferId);
     if (!offer) {
       throw new NotFoundException('Job offer not found');
     }
@@ -67,7 +69,7 @@ export class ApplicationsController {
       student.studentId,
     );
     const alreadyApplied = existingApplications.some(
-      (app) => app.jobOffer.offerId === createApplicationDto.offerId,
+      (app) => app.jobOffer.offerId === jobOfferId,
     );
 
     if (alreadyApplied) {
@@ -78,7 +80,7 @@ export class ApplicationsController {
 
     return this.applicationsService.apply(
       student.studentId,
-      createApplicationDto.offerId,
+      jobOfferId,
       createApplicationDto.coverLetter,
       createApplicationDto.cvUrl,
     );

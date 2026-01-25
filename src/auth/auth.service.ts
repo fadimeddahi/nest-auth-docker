@@ -9,15 +9,15 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    return await this.usersService.validateUser(username, pass);
+  async validateUser(email: string, pass: string): Promise<any> {
+    return await this.usersService.validateUserByEmail(email, pass);
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async login(user: any): Promise<any> {
     const payload = {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      username: user.username as string,
+      email: user.email as string,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       sub: user.userId as number,
     };
