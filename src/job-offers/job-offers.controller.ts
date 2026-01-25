@@ -174,6 +174,7 @@ export class JobOffersController {
     // Verify user is the owner of the offer
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (offer.company.user.userId !== req.user.userId) {
+      throw new ForbiddenException('You can only delete your own job offers');
     }
 
     await this.jobOffersService.delete(offerId);

@@ -31,7 +31,7 @@ export class JobOffersService {
   async findById(offerId: number): Promise<JobOffer | null> {
     return this.jobOffersRepository.findOne({
       where: { offerId },
-      relations: ['company', 'applications'],
+      relations: ['company', 'company.user', 'applications'],
     });
   }
 
