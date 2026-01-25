@@ -17,8 +17,30 @@ export class StudentsController {
   @ApiOperation({ summary: 'Get current student profile' })
   @ApiResponse({ status: 200, description: 'Return student profile.' })
   @ApiResponse({ status: 404, description: 'Student profile not found.' })
-  async getProfile(@Request() req): Promise<Student | null> {
-    return this.studentsService.findByUserId(req.user.userId);
+  async getProfile(@Request() req): Promise<any> {
+    const student = await this.studentsService.findByUserId(req.user.userId);
+    if (!student) {
+      throw new NotFoundException('Student profile not found');
+    }
+
+    return {
+      statusCode: 200,
+      id: student.studentId,
+      userId: student.user?.userId,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      email: student.user?.email,
+      university: student.university,
+      bio: student.bio,
+      phone: student.phone,
+      location: student.location,
+      portfolioUrl: student.portfolioUrl,
+      githubUrl: student.githubUrl,
+      linkedinUrl: student.linkedinUrl,
+      skills: student.skills || [],
+      experiences: student.experiences || [],
+      createdAt: student.createdAt,
+    };
   }
 
   @Put('profile')
@@ -30,7 +52,7 @@ export class StudentsController {
   async updateProfile(
     @Request() req,
     @Body(new ValidationPipe()) updateStudentDto: UpdateStudentDto,
-  ): Promise<Student> {
+  ): Promise<any> {
     const student = await this.studentsService.findByUserId(req.user.userId);
     if (!student) {
       throw new NotFoundException('Student profile not found');
@@ -41,7 +63,25 @@ export class StudentsController {
       throw new NotFoundException('Failed to update student profile');
     }
 
-    return result;
+    return {
+      statusCode: 200,
+      message: 'Profile updated successfully',
+      id: result.studentId,
+      userId: result.user?.userId,
+      firstName: result.firstName,
+      lastName: result.lastName,
+      email: result.user?.email,
+      university: result.university,
+      bio: result.bio,
+      phone: result.phone,
+      location: result.location,
+      portfolioUrl: result.portfolioUrl,
+      githubUrl: result.githubUrl,
+      linkedinUrl: result.linkedinUrl,
+      skills: result.skills || [],
+      experiences: result.experiences || [],
+      createdAt: result.createdAt,
+    };
   }
 
   @Get(':id')

@@ -27,6 +27,9 @@ export class Student {
   lastName?: string;
 
   @Column({ nullable: true })
+  university?: string;
+
+  @Column({ nullable: true })
   phone?: string;
 
   @Column({ nullable: true })
