@@ -20,6 +20,8 @@ export class AuthService {
       email: user.email as string,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       sub: user.userId as number,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      role: user.role as string,
     };
     return {
       access_token: this.jwtService.sign(payload),
