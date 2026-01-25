@@ -15,6 +15,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { ApplicationsService } from './applications.service';
 import { StudentsService } from '../students/students.service';
 import { JobOffersService } from '../job-offers/job-offers.service';
+import { CompaniesService } from '../companies/companies.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
@@ -28,6 +29,7 @@ export class ApplicationsController {
     private applicationsService: ApplicationsService,
     private studentsService: StudentsService,
     private jobOffersService: JobOffersService,
+    private companiesService: CompaniesService,
   ) {}
 
   @Post(':offerId')
@@ -105,6 +107,27 @@ export class ApplicationsController {
     }
 
     return this.applicationsService.findByStudentId(student.studentId);
+  }
+
+  @Get('company/all')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all applications for company offers (Company)' })
+  @ApiResponse({ status: 200, description: 'Return list of applications for company.' })
+  @ApiResponse({ status: 403, description: 'Only companies can view applications.' })
+  async getCompanyApplications(@Request() req: any): Promise<Application[]> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (req.user.role !== 'company') {
+      throw new ForbiddenException('Only companies can view applications');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const company = await this.companiesService.findByUserId(req.user.userId);
+    if (!company) {
+      throw new NotFoundException('Company profile not found');
+    }
+
+    return this.applicationsService.findByCompanyId(company.companyId);
   }
 
   @Get('offer/:offerId')

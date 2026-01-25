@@ -57,4 +57,11 @@ export class ApplicationsService {
   async withdraw(applicationId: number): Promise<Application | null> {
     return this.updateStatus(applicationId, ApplicationStatus.WITHDRAWN);
   }
+
+  async findByCompanyId(companyId: number): Promise<Application[]> {
+    return this.applicationsRepository.find({
+      where: { jobOffer: { company: { companyId } } },
+      relations: ['student', 'student.user', 'jobOffer', 'jobOffer.company'],
+    });
+  }
 }
