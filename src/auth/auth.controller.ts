@@ -54,17 +54,23 @@ export class AuthController {
     );
 
     // Create student or company profile based on userType
-    if (registerDto.userType === UserType.STUDENT) {
-      await this.studentsService.create(user.userId, {
-        firstName: registerDto.firstName,
-        lastName: registerDto.lastName,
-        university: registerDto.university,
-      });
-    } else {
-      await this.companiesService.create(user.userId, {
-        companyName: `${registerDto.firstName} ${registerDto.lastName}`,
-        enterpriseSize: registerDto.enterpriseSize,
-      });
+    try {
+      if (registerDto.userType === UserType.STUDENT) {
+        await this.studentsService.create(user.userId, {
+          firstName: registerDto.firstName,
+          lastName: registerDto.lastName,
+          university: registerDto.university,
+        });
+      } else {
+        await this.companiesService.create(user.userId, {
+          companyName: `${registerDto.firstName} ${registerDto.lastName}`,
+          enterpriseSize: registerDto.enterpriseSize,
+        });
+      }
+    } catch (error) {
+      // If profile creation fails, delete the user to maintain consistency
+      await this.usersService.delete(user.userId);
+      throw new Error('Failed to create user profile. Please try again.');
     }
 
     return {
