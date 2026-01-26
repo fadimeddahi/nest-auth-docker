@@ -4,8 +4,10 @@ import { Repository } from 'typeorm';
 import { Student } from './student.entity';
 import { Skill } from './skill.entity';
 import { Experience } from './experience.entity';
+import { Education } from './education.entity';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { CreateExperienceDto } from './dto/create-experience.dto';
+import { CreateEducationDto } from './dto/create-education.dto';
 
 @Injectable()
 export class StudentsService {
@@ -16,12 +18,14 @@ export class StudentsService {
     private skillsRepository: Repository<Skill>,
     @InjectRepository(Experience)
     private experiencesRepository: Repository<Experience>,
+    @InjectRepository(Education)
+    private educationRepository: Repository<Education>,
   ) {}
 
   async findByUserId(userId: number): Promise<Student | null> {
     return this.studentsRepository.findOne({
       where: { user: { userId } },
-      relations: ['user', 'skills', 'experiences', 'applications', 'applications.jobOffer', 'applications.jobOffer.company'],
+      relations: ['user', 'skills', 'experiences', 'education', 'applications', 'applications.jobOffer', 'applications.jobOffer.company'],
     });
   }
 
@@ -37,14 +41,14 @@ export class StudentsService {
     await this.studentsRepository.update(studentId, studentData);
     return this.studentsRepository.findOne({
       where: { studentId },
-      relations: ['user', 'skills', 'experiences', 'applications', 'applications.jobOffer', 'applications.jobOffer.company'],
+      relations: ['user', 'skills', 'experiences', 'education', 'applications', 'applications.jobOffer', 'applications.jobOffer.company'],
     });
   }
 
   async findById(studentId: number): Promise<Student | null> {
     return this.studentsRepository.findOne({
       where: { studentId },
-      relations: ['user', 'skills', 'experiences', 'applications', 'applications.jobOffer', 'applications.jobOffer.company'],
+      relations: ['user', 'skills', 'experiences', 'education', 'applications', 'applications.jobOffer', 'applications.jobOffer.company'],
     });
   }
 
@@ -106,6 +110,41 @@ export class StudentsService {
 
   async deleteExperience(experienceId: number): Promise<boolean> {
     const result = await this.experiencesRepository.delete(experienceId);
+    return (result.affected ?? 0) > 0;
+  }
+
+  async addEducation(studentId: number, createEducationDto: CreateEducationDto): Promise<Education> {
+    const education = this.educationRepository.create({
+      school: createEducationDto.school,
+      degree: createEducationDto.degree,
+      fieldOfStudy: createEducationDto.fieldOfStudy,
+      startDate: new Date(createEducationDto.startDate),
+      endDate: createEducationDto.endDate ? new Date(createEducationDto.endDate) : undefined,
+      student: { studentId } as any,
+    });
+    return this.educationRepository.save(education);
+  }
+
+  async updateEducation(educationId: number, createEducationDto: CreateEducationDto): Promise<Education | null> {
+    const updateData: any = {
+      school: createEducationDto.school,
+      degree: createEducationDto.degree,
+      fieldOfStudy: createEducationDto.fieldOfStudy,
+      startDate: new Date(createEducationDto.startDate),
+    };
+    
+    if (createEducationDto.endDate) {
+      updateData.endDate = new Date(createEducationDto.endDate);
+    }
+    
+    await this.educationRepository.update(educationId, updateData);
+    return this.educationRepository.findOne({
+      where: { educationId },
+    });
+  }
+
+  async deleteEducation(educationId: number): Promise<boolean> {
+    const result = await this.educationRepository.delete(educationId);
     return (result.affected ?? 0) > 0;
   }
 }

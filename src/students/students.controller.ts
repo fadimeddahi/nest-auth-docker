@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { CreateExperienceDto } from './dto/create-experience.dto';
+import { CreateEducationDto } from './dto/create-education.dto';
 import { ValidationPipe } from '../common/pipes/validation.pipe';
 import { Student } from './student.entity';
 import { ApplicationsService } from '../applications/applications.service';
@@ -46,6 +47,7 @@ export class StudentsController {
       profileImageUrl: student.profileImageUrl,
       skills: student.skills || [],
       experiences: student.experiences || [],
+      education: student.education || [],
       createdAt: student.createdAt,
     };
   }
@@ -137,6 +139,7 @@ export class StudentsController {
       profileImageUrl: result.profileImageUrl,
       skills: result.skills || [],
       experiences: result.experiences || [],
+      education: result.education || [],
       createdAt: result.createdAt,
     };
   }
@@ -366,6 +369,83 @@ export class StudentsController {
     return {
       statusCode: 200,
       message: 'Experience deleted successfully',
+    };
+  }
+
+  @Post('education')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add education to student profile' })
+  @ApiResponse({ status: 201, description: 'Education added successfully.' })
+  @ApiResponse({ status: 404, description: 'Student profile not found.' })
+  async addEducation(
+    @Request() req,
+    @Body(new ValidationPipe()) createEducationDto: CreateEducationDto,
+  ): Promise<any> {
+    const student = await this.studentsService.findByUserId(req.user.userId);
+    if (!student) {
+      throw new NotFoundException('Student profile not found');
+    }
+
+    const education = await this.studentsService.addEducation(student.studentId, createEducationDto);
+    return {
+      statusCode: 201,
+      message: 'Education added successfully',
+      education,
+    };
+  }
+
+  @Put('education/:educationId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update education' })
+  @ApiResponse({ status: 200, description: 'Education updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Education not found.' })
+  async updateEducation(
+    @Request() req,
+    @Param('educationId') educationId: string,
+    @Body(new ValidationPipe()) createEducationDto: CreateEducationDto,
+  ): Promise<any> {
+    const id = parseInt(educationId, 10);
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid education ID');
+    }
+
+    const education = await this.studentsService.updateEducation(id, createEducationDto);
+    if (!education) {
+      throw new NotFoundException('Education not found');
+    }
+
+    return {
+      statusCode: 200,
+      message: 'Education updated successfully',
+      education,
+    };
+  }
+
+  @Delete('education/:educationId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete education' })
+  @ApiResponse({ status: 200, description: 'Education deleted successfully.' })
+  @ApiResponse({ status: 404, description: 'Education not found.' })
+  async deleteEducation(
+    @Request() req,
+    @Param('educationId') educationId: string,
+  ): Promise<any> {
+    const id = parseInt(educationId, 10);
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid education ID');
+    }
+
+    const deleted = await this.studentsService.deleteEducation(id);
+    if (!deleted) {
+      throw new NotFoundException('Education not found');
+    }
+
+    return {
+      statusCode: 200,
+      message: 'Education deleted successfully',
     };
   }
 

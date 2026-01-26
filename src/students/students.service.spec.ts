@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Student } from './student.entity';
 import { Skill } from './skill.entity';
 import { Experience } from './experience.entity';
+import { Education } from './education.entity';
 import { Repository } from 'typeorm';
 
 describe('StudentsService', () => {
@@ -11,6 +12,7 @@ describe('StudentsService', () => {
   let repository: jest.Mocked<Repository<Student>>;
   let skillRepository: jest.Mocked<Repository<Skill>>;
   let experienceRepository: jest.Mocked<Repository<Experience>>;
+  let educationRepository: jest.Mocked<Repository<Education>>;
 
   const mockStudent = {
     studentId: 1,
@@ -50,6 +52,14 @@ describe('StudentsService', () => {
       delete: jest.fn(),
     };
 
+    const mockEducationRepository = {
+      create: jest.fn(),
+      save: jest.fn(),
+      findOne: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         StudentsService,
@@ -65,6 +75,10 @@ describe('StudentsService', () => {
           provide: getRepositoryToken(Experience),
           useValue: mockExperienceRepository,
         },
+        {
+          provide: getRepositoryToken(Education),
+          useValue: mockEducationRepository,
+        },
       ],
     }).compile();
 
@@ -72,6 +86,7 @@ describe('StudentsService', () => {
     repository = module.get(getRepositoryToken(Student));
     skillRepository = module.get(getRepositoryToken(Skill));
     experienceRepository = module.get(getRepositoryToken(Experience));
+    educationRepository = module.get(getRepositoryToken(Education));
   });
 
   it('should be defined', () => {
@@ -107,6 +122,7 @@ describe('StudentsService', () => {
           'user',
           'skills',
           'experiences',
+          'education',
           'applications',
           'applications.jobOffer',
           'applications.jobOffer.company',
@@ -136,6 +152,7 @@ describe('StudentsService', () => {
           'user',
           'skills',
           'experiences',
+          'education',
           'applications',
           'applications.jobOffer',
           'applications.jobOffer.company',

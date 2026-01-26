@@ -10,6 +10,7 @@ import {
 import { User } from '../users/user.entity';
 import { Skill } from './skill.entity';
 import { Experience } from './experience.entity';
+import { Education } from './education.entity';
 import { Application } from '../applications/application.entity';
 
 @Entity('students')
@@ -57,6 +58,11 @@ export class Student {
     cascade: true,
   })
   experiences: Experience[];
+
+  @OneToMany(() => Education, (education) => education.student, {
+    cascade: true,
+  })
+  education: Education[];
 
   @OneToMany(() => Application, (application) => application.student)
   applications: Application[];
