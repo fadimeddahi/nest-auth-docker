@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, MaxLength } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsDateString } from 'class-validator';
 
 export class CreateExperienceDto {
   @ApiProperty({ example: 'Google', description: 'Company name' })
@@ -22,8 +22,20 @@ export class CreateExperienceDto {
   @MaxLength(500)
   description?: string;
 
-  @ApiProperty({ example: '2 years', description: 'Duration of employment' })
-  @IsString()
-  @MaxLength(50)
-  duration: string;
+  @ApiProperty({
+    example: '2023-01-15',
+    description: 'Start date (YYYY-MM-DD)',
+    required: false,
+  })
+  @IsOptional()
+  startDate?: string;
+
+  @ApiProperty({
+    example: '2024-06-30',
+    description: 'End date (YYYY-MM-DD), leave null for ongoing',
+    required: false,
+  })
+  @IsOptional()
+  endDate?: string;
 }
+

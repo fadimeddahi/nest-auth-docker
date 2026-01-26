@@ -1,8 +1,10 @@
-import { Controller, Get, Put, Post, Body, UseGuards, Request, NotFoundException, BadRequestException, Param, HttpCode, ConflictException } from '@nestjs/common';
+import { Controller, Get, Put, Post, Body, UseGuards, Request, NotFoundException, BadRequestException, Param, HttpCode, ConflictException, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { StudentsService } from './students.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { CreateSkillDto } from './dto/create-skill.dto';
+import { CreateExperienceDto } from './dto/create-experience.dto';
 import { ValidationPipe } from '../common/pipes/validation.pipe';
 import { Student } from './student.entity';
 import { ApplicationsService } from '../applications/applications.service';
@@ -41,6 +43,7 @@ export class StudentsController {
       portfolioUrl: student.portfolioUrl,
       githubUrl: student.githubUrl,
       linkedinUrl: student.linkedinUrl,
+      profileImageUrl: student.profileImageUrl,
       skills: student.skills || [],
       experiences: student.experiences || [],
       createdAt: student.createdAt,
@@ -92,6 +95,7 @@ export class StudentsController {
       portfolioUrl: result.portfolioUrl,
       githubUrl: result.githubUrl,
       linkedinUrl: result.linkedinUrl,
+      profileImageUrl: result.profileImageUrl,
     };
   }
 
@@ -130,6 +134,7 @@ export class StudentsController {
       portfolioUrl: result.portfolioUrl,
       githubUrl: result.githubUrl,
       linkedinUrl: result.linkedinUrl,
+      profileImageUrl: result.profileImageUrl,
       skills: result.skills || [],
       experiences: result.experiences || [],
       createdAt: result.createdAt,
@@ -207,6 +212,160 @@ export class StudentsController {
         appliedDate: app.createdAt,
         updatedDate: app.updatedAt,
       })),
+    };
+  }
+
+  @Post('skills')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add a skill to student profile' })
+  @ApiResponse({ status: 201, description: 'Skill added successfully.' })
+  @ApiResponse({ status: 404, description: 'Student profile not found.' })
+  async addSkill(
+    @Request() req,
+    @Body(new ValidationPipe()) createSkillDto: CreateSkillDto,
+  ): Promise<any> {
+    const student = await this.studentsService.findByUserId(req.user.userId);
+    if (!student) {
+      throw new NotFoundException('Student profile not found');
+    }
+
+    const skill = await this.studentsService.addSkill(student.studentId, createSkillDto);
+    return {
+      statusCode: 201,
+      message: 'Skill added successfully',
+      skill,
+    };
+  }
+
+  @Put('skills/:skillId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a skill' })
+  @ApiResponse({ status: 200, description: 'Skill updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Skill not found.' })
+  async updateSkill(
+    @Request() req,
+    @Param('skillId') skillId: string,
+    @Body(new ValidationPipe()) createSkillDto: CreateSkillDto,
+  ): Promise<any> {
+    const id = parseInt(skillId, 10);
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid skill ID');
+    }
+
+    const skill = await this.studentsService.updateSkill(id, createSkillDto);
+    if (!skill) {
+      throw new NotFoundException('Skill not found');
+    }
+
+    return {
+      statusCode: 200,
+      message: 'Skill updated successfully',
+      skill,
+    };
+  }
+
+  @Delete('skills/:skillId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a skill' })
+  @ApiResponse({ status: 200, description: 'Skill deleted successfully.' })
+  @ApiResponse({ status: 404, description: 'Skill not found.' })
+  async deleteSkill(
+    @Request() req,
+    @Param('skillId') skillId: string,
+  ): Promise<any> {
+    const id = parseInt(skillId, 10);
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid skill ID');
+    }
+
+    const deleted = await this.studentsService.deleteSkill(id);
+    if (!deleted) {
+      throw new NotFoundException('Skill not found');
+    }
+
+    return {
+      statusCode: 200,
+      message: 'Skill deleted successfully',
+    };
+  }
+
+  @Post('experiences')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add an experience to student profile' })
+  @ApiResponse({ status: 201, description: 'Experience added successfully.' })
+  @ApiResponse({ status: 404, description: 'Student profile not found.' })
+  async addExperience(
+    @Request() req,
+    @Body(new ValidationPipe()) createExperienceDto: CreateExperienceDto,
+  ): Promise<any> {
+    const student = await this.studentsService.findByUserId(req.user.userId);
+    if (!student) {
+      throw new NotFoundException('Student profile not found');
+    }
+
+    const experience = await this.studentsService.addExperience(student.studentId, createExperienceDto);
+    return {
+      statusCode: 201,
+      message: 'Experience added successfully',
+      experience,
+    };
+  }
+
+  @Put('experiences/:experienceId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update an experience' })
+  @ApiResponse({ status: 200, description: 'Experience updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Experience not found.' })
+  async updateExperience(
+    @Request() req,
+    @Param('experienceId') experienceId: string,
+    @Body(new ValidationPipe()) createExperienceDto: CreateExperienceDto,
+  ): Promise<any> {
+    const id = parseInt(experienceId, 10);
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid experience ID');
+    }
+
+    const experience = await this.studentsService.updateExperience(id, createExperienceDto);
+    if (!experience) {
+      throw new NotFoundException('Experience not found');
+    }
+
+    return {
+      statusCode: 200,
+      message: 'Experience updated successfully',
+      experience,
+    };
+  }
+
+  @Delete('experiences/:experienceId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete an experience' })
+  @ApiResponse({ status: 200, description: 'Experience deleted successfully.' })
+  @ApiResponse({ status: 404, description: 'Experience not found.' })
+  async deleteExperience(
+    @Request() req,
+    @Param('experienceId') experienceId: string,
+  ): Promise<any> {
+    const id = parseInt(experienceId, 10);
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid experience ID');
+    }
+
+    const deleted = await this.studentsService.deleteExperience(id);
+    if (!deleted) {
+      throw new NotFoundException('Experience not found');
+    }
+
+    return {
+      statusCode: 200,
+      message: 'Experience deleted successfully',
     };
   }
 

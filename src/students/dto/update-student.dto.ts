@@ -88,4 +88,13 @@ export class UpdateStudentDto {
   @IsUrl()
   @IsOptional()
   linkedinUrl?: string;
+
+  @ApiProperty({
+    example: 'https://res.cloudinary.com/...image.jpg',
+    description: 'Profile image URL',
+    required: false,
+  })
+  @IsUrl()
+  @IsOptional()
+  profileImageUrl?: string;
 }

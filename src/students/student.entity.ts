@@ -47,6 +47,9 @@ export class Student {
   @Column({ nullable: true })
   linkedinUrl?: string;
 
+  @Column({ nullable: true })
+  profileImageUrl?: string;
+
   @OneToMany(() => Skill, (skill) => skill.student, { cascade: true })
   skills: Skill[];
 

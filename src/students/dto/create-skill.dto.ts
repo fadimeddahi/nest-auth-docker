@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, MaxLength, IsUrl } from 'class-validator';
+import { IsString, IsOptional, MaxLength } from 'class-validator';
 
 export class CreateSkillDto {
   @ApiProperty({ example: 'TypeScript', description: 'Skill name' })
@@ -8,12 +8,12 @@ export class CreateSkillDto {
   name: string;
 
   @ApiProperty({
-    example: 'Expert',
-    description: 'Skill level',
+    example: 'Advanced',
+    description: 'Proficiency level (Beginner, Intermediate, Advanced, Expert)',
     required: false,
   })
   @IsString()
   @IsOptional()
-  @MaxLength(10)
+  @MaxLength(20)
   level?: string;
 }
