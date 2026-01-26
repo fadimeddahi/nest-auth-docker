@@ -12,12 +12,12 @@ import { APP_GUARD } from '@nestjs/core';
       {
         name: 'short',
         ttl: 60000, // 1 minute
-        limit: 60, // 60 requests per minute (increased for normal read operations)
+        limit: 500, // 500 requests per minute for read operations
       },
       {
         name: 'long',
         ttl: 3600000, // 1 hour
-        limit: 1000, // 1000 requests per hour
+        limit: 10000, // 10000 requests per hour
       },
       {
         name: 'auth',
