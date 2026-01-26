@@ -19,6 +19,7 @@ import { Student } from './students/student.entity';
 import { Company } from './companies/company.entity';
 import { Skill } from './students/skill.entity';
 import { Experience } from './students/experience.entity';
+import { Education } from './students/education.entity';
 import { JobOffer } from './job-offers/job-offer.entity';
 import { Application } from './applications/application.entity';
 import { envValidationSchema } from './config/env.validation';
@@ -47,7 +48,7 @@ import { envValidationSchema } from './config/env.validation';
           username: configService.get<string>('POSTGRES_USER'),
           password: configService.get<string>('POSTGRES_PASSWORD'),
           database: configService.get<string>('POSTGRES_DB'),
-          entities: [User, Student, Company, Skill, Experience, JobOffer, Application],
+          entities: [User, Student, Company, Skill, Experience, Education, JobOffer, Application],
           synchronize: true,
           logging: !isProduction,
           migrations: ['dist/migrations/*.js'],
