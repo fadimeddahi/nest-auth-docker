@@ -9,6 +9,7 @@ import {
   BadRequestException,
   Param,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CompaniesService } from './companies.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -60,6 +61,7 @@ export class CompaniesController {
   }
 
   @Get()
+  @SkipThrottle()
   @ApiOperation({ summary: 'List all companies' })
   @ApiResponse({ status: 200, description: 'Return list of companies.' })
   async getAllCompanies(): Promise<Company[]> {
@@ -67,6 +69,7 @@ export class CompaniesController {
   }
 
   @Get(':id')
+  @SkipThrottle()
   @ApiOperation({ summary: 'Get company by ID' })
   @ApiResponse({ status: 200, description: 'Return company details.' })
   @ApiResponse({ status: 400, description: 'Invalid company ID.' })

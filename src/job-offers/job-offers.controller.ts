@@ -12,6 +12,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { JobOffersService } from './job-offers.service';
 import { CompaniesService } from '../companies/companies.service';
@@ -30,6 +31,7 @@ export class JobOffersController {
   ) {}
 
   @Get()
+  @SkipThrottle()
   @ApiOperation({ summary: 'List all job offers' })
   @ApiResponse({ status: 200, description: 'Return list of job offers.' })
   async getAllOffers(): Promise<JobOffer[]> {
@@ -37,6 +39,7 @@ export class JobOffersController {
   }
 
   @Get('type/:type')
+  @SkipThrottle()
   @ApiOperation({ summary: 'List job offers by type' })
   @ApiParam({ name: 'type', enum: OfferType })
   @ApiResponse({ status: 200, description: 'Return list of job offers.' })
@@ -54,6 +57,7 @@ export class JobOffersController {
   }
 
   @Get('company/:companyId')
+  @SkipThrottle()
   @ApiOperation({ summary: 'List job offers by company' })
   @ApiResponse({ status: 200, description: 'Return list of job offers.' })
   @ApiResponse({ status: 400, description: 'Invalid company ID.' })
@@ -69,6 +73,7 @@ export class JobOffersController {
   }
 
   @Get(':id')
+  @SkipThrottle()
   @ApiOperation({ summary: 'Get job offer by ID' })
   @ApiResponse({ status: 200, description: 'Return job offer details.' })
   @ApiResponse({ status: 400, description: 'Invalid offer ID.' })
