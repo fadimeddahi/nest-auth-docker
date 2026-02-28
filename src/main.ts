@@ -10,9 +10,15 @@ async function bootstrap() {
   app.use(helmet());
 
   // ✅ Security: Configure CORS
-  const corsOrigins = process.env.CORS_ORIGINS
+  const baseOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://dz-stagiaire-frontend-mvar.vercel.app',
+  ];
+  const envOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
-    : ['http://localhost:3000', 'http://localhost:3001', 'https://dz-stagiaire-frontend-mvar.vercel.app'];
+    : [];
+  const corsOrigins = [...new Set([...baseOrigins, ...envOrigins])];
 
   app.enableCors({
     origin: corsOrigins,
