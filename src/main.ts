@@ -12,7 +12,7 @@ async function bootstrap() {
   // ✅ Security: Configure CORS
   const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
-    : ['http://localhost:3000', 'http://localhost:3001'];
+    : ['http://localhost:3000', 'http://localhost:3001', 'https://dz-stagiaire-frontend-mvar.vercel.app'];
 
   app.enableCors({
     origin: corsOrigins,
