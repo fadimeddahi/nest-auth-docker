@@ -14,6 +14,7 @@ async function bootstrap() {
     'http://localhost:3000',
     'http://localhost:3001',
     'https://dz-stagiaire-frontend-mvar.vercel.app',
+    'https://dz-stagiaire-frontend-ciet.vercel.app',
   ];
   const envOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
