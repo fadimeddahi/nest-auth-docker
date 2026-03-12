@@ -6,10 +6,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // ✅ Security: Add Helmet middleware for HTTP headers
-  app.use(helmet());
-
-  // ✅ Security: Configure CORS
+  // ✅ Security: Configure CORS first (before helmet)
   const baseOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
@@ -29,6 +26,11 @@ async function bootstrap() {
     exposedHeaders: ['X-Total-Count', 'X-Total-Pages'],
     maxAge: 3600,
   });
+
+  // ✅ Security: Add Helmet middleware for HTTP headers (after CORS)
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }));
 
   // ✅ Swagger Configuration
   const config = new DocumentBuilder()
